@@ -82,6 +82,9 @@ fn status_style_for(
 const TABLE_SEPARATOR_FG_ALPHA: f32 = 0.20;
 
 pub fn user_message_style() -> Style {
+    if crate::render::highlight::with_syntax_theme(|theme| theme.name.as_deref() == Some("ANSI")) {
+        return Style::default().bg(Color::Reset);
+    }
     user_message_style_for(default_bg())
 }
 
@@ -99,8 +102,11 @@ pub(crate) fn shortcut_hud_style() -> Style {
     })
 }
 
-/// Submitted prompts use a lighter fill than the editable composer in either theme.
+/// Submitted prompts use the terminal background in ANSI and a lighter fill in other themes.
 pub(crate) fn history_prompt_style() -> Style {
+    if crate::render::highlight::with_syntax_theme(|theme| theme.name.as_deref() == Some("ANSI")) {
+        return Style::default().bg(Color::Reset);
+    }
     let Some(background) = default_bg() else {
         return history_prompt_fallback(effective_stdout_color_level());
     };
